@@ -21,10 +21,74 @@ var HelloWorldLayer = cc.Layer.extend({
     enemy2: null,
     enemy3: null,
     
+    initPhysics:function() {
+        //initiate space
+        this.space = new cp.Space();
+        
+        //setup the  Gravity
+        this.space.gravity = cp.v(0, -800); //Earth gravity
+        this.space.iterations = 30;
+        this.space.sleepTimeThreshold = Infinity;
+        this.space.collisionSlop = Infinity;
+    },
+    
+    update:function (dt) {
+        this.space.step(dt);
+    },
+    
+    addPhysicsCircle: function(width, height) {
+        var mass = 1;
+        
+        this.phBodyCircle = this.space.addBody(new cp.Body(mass, cp.momentForCircle(mass,0,width*0.5,cc.p(0,0))));
+        this.phBodyCircle.setPos(cc.p(cc.winSize.width * 0.5, cc.winSize.height * 0.3));
+
+        var phShape = this.space.addShape(new cp.CircleShape(this.phBodyCircle, width, cc.p(0, 0)));
+        phShape.setFriction(0);
+        phShape.setElasticity(1);
+        phShape.setCollisionType(0);
+    },
+    
+    addPhysicsBox: function(width, height, posX, posY) {
+        var mass=1;
+        
+        this.phBodyBox = this.space.addBody(new cp.Body(mass, cp.momentForBox(mass, width, height)));
+        this.phBodyBox.setPos(cc.p(posX, posY));
+
+        var phShape = this.space.addShape(new cp.BoxShape(this.phBodyBox, width, height));
+        phShape.setFriction(2);
+        phShape.setElasticity(0);
+        phShape.setCollisionType(1);
+        
+        return phShape;
+    },
+    
+    setupDebugNode : function(){
+        this._debugNode = new cc.PhysicsDebugNode(this.space);
+        this.addChild( this._debugNode );
+    },
+    
+    addCollisionCallBack:function(){
+        this.space.addCollisionHandler(0, 1, function(){
+            cc.log('Box and Circle colliding !');
+            return true;
+        }, null, null, null);
+    },
+    
+    addGround: function() {
+        var WALLS_WIDTH = 5;
+        var WALLS_ELASTICITY = 0.5;
+        var WALLS_FRICTION = 1;
+
+        var bottomWall = new cp.SegmentShape(this.space.staticBody, new cp.v(0, 80), new cp.v(cc.winSize.width, 80), WALLS_WIDTH);
+        bottomWall.setElasticity(WALLS_ELASTICITY);
+        bottomWall.setFriction(WALLS_FRICTION);
+        this.space.addStaticShape(bottomWall);
+    },
+    
     ctor:function () {
         this._super();
         var size = cc.winSize;
-
+        
         var helloLabel = new cc.LabelTTF("Angry INTEC", "Arial", 38);
         helloLabel.setPosition(size.width / 2, size.height / 2 + 200);
         this.addChild(helloLabel, 1);
@@ -49,65 +113,65 @@ var HelloWorldLayer = cc.Layer.extend({
         this.impulsor2.setScale(0.5,0.5);
         this.addChild(this.impulsor2,2);
         
-        this.wood1 = new cc.Sprite(res.madera1);
-        this.wood1.setPosition(705,100);
-        this.wood1.setScale(0.3, 0.3);
-        this.addChild(this.wood1, 2);
+//        this.wood1 = new cc.Sprite(res.madera1);
+//        this.wood1.setPosition(705,100);
+//        this.wood1.setScale(0.3, 0.3);
+//        this.addChild(this.wood1, 2);
         
-        this.wood2 = new cc.Sprite(res.madera2);
-        this.wood2.setPosition(720,118);
-        this.wood2.setScale(0.3, 0.4);
-        this.wood2.setRotation(90);
-        this.addChild(this.wood2, 2);
+//        this.wood2 = new cc.Sprite(res.madera2);
+//        this.wood2.setPosition(720,118);
+//        this.wood2.setScale(0.3, 0.4);
+//        this.wood2.setRotation(90);
+//        this.addChild(this.wood2, 2);
         
-        this.wood3 = new cc.Sprite(res.madera2);
-        this.wood3.setPosition(780,118);
-        this.wood3.setScale(0.3, 0.4);
-        this.wood3.setRotation(90);
-        this.addChild(this.wood3, 2);
+//        this.wood3 = new cc.Sprite(res.madera2);
+//        this.wood3.setPosition(780,118);
+//        this.wood3.setScale(0.3, 0.4);
+//        this.wood3.setRotation(90);
+//        this.addChild(this.wood3, 2);
         
-        this.wood4 = new cc.Sprite(res.madera2);
-        this.wood4.setPosition(840,118);
-        this.wood4.setScale(0.3, 0.4);
-        this.wood4.setRotation(90);
-        this.addChild(this.wood4, 2);
+//        this.wood4 = new cc.Sprite(res.madera2);
+//        this.wood4.setPosition(840,118);
+//        this.wood4.setScale(0.3, 0.4);
+//        this.wood4.setRotation(90);
+//        this.addChild(this.wood4, 2);
         
-        this.wood5 = new cc.Sprite(res.madera1);
-        this.wood5.setPosition(856,100);
-        this.wood5.setScale(0.3, 0.3);
-        this.addChild(this.wood5, 2);
+//        this.wood5 = new cc.Sprite(res.madera1);
+//        this.wood5.setPosition(856,100);
+//        this.wood5.setScale(0.3, 0.3);
+//        this.addChild(this.wood5, 2);
         
-        this.wood6 = new cc.Sprite(res.madera2);
-        this.wood6.setPosition(780,152);
-        this.wood6.setScale(0.65, 0.4);
-        this.addChild(this.wood6, 2);
+//        this.wood6 = new cc.Sprite(res.madera2);
+//        this.wood6.setPosition(780,152);
+//        this.wood6.setScale(0.65, 0.4);
+//        this.addChild(this.wood6, 2);
         
-        this.wood7 = new cc.Sprite(res.madera2);
-        this.wood7.setPosition(750,185);
-        this.wood7.setScale(0.3, 0.4);
-        this.wood7.setRotation(90);
-        this.addChild(this.wood7, 2);
+//        this.wood7 = new cc.Sprite(res.madera2);
+//        this.wood7.setPosition(750,185);
+//        this.wood7.setScale(0.3, 0.4);
+//        this.wood7.setRotation(90);
+//        this.addChild(this.wood7, 2);
         
-        this.wood8 = new cc.Sprite(res.madera2);
-        this.wood8.setPosition(810,185);
-        this.wood8.setScale(0.3, 0.4);
-        this.wood8.setRotation(90);
-        this.addChild(this.wood8, 2);
+//        this.wood8 = new cc.Sprite(res.madera2);
+//        this.wood8.setPosition(810,185);
+//        this.wood8.setScale(0.3, 0.4);
+//        this.wood8.setRotation(90);
+//        this.addChild(this.wood8, 2);
         
-        this.wood9 = new cc.Sprite(res.madera2);
-        this.wood9.setPosition(780,220);
-        this.wood9.setScale(0.35, 0.4);
-        this.addChild(this.wood9, 2);
+//        this.wood9 = new cc.Sprite(res.madera2);
+//        this.wood9.setPosition(780,220);
+//        this.wood9.setScale(0.35, 0.4);
+//        this.addChild(this.wood9, 2);
         
-        this.wood10 = new cc.Sprite(res.madera1);
-        this.wood10.setPosition(735,167);
-        this.wood10.setScale(0.3, 0.3);
-        this.addChild(this.wood10, 2);
+//        this.wood10 = new cc.Sprite(res.madera1);
+//        this.wood10.setPosition(735,167);
+//        this.wood10.setScale(0.3, 0.3);
+//        this.addChild(this.wood10, 2);
         
-        this.wood11 = new cc.Sprite(res.madera1);
-        this.wood11.setPosition(825,167);
-        this.wood11.setScale(0.3, 0.3);
-        this.addChild(this.wood11, 2);
+//        this.wood11 = new cc.Sprite(res.madera1);
+//        this.wood11.setPosition(825,167);
+//        this.wood11.setScale(0.3, 0.3);
+//        this.addChild(this.wood11, 2);
         
         this.enemy1 = new cc.Sprite(res.enemigo);
         this.enemy1.setPosition(750, 106);
@@ -126,6 +190,28 @@ var HelloWorldLayer = cc.Layer.extend({
         
         var action = cc.Spawn.create(cc.RotateBy.create(1.5, 360), cc.JumpTo.create(1.5, cc.p(205, 175), 100, 1));
         this.redBird.runAction(action);
+        
+        this.initPhysics();
+        this.setupDebugNode();
+        this.addGround();
+//        this.addPhysicsCircle();
+        // width, height, positionX, positionY
+        this.addPhysicsBox(24, 24, 705, 98);
+        this.addPhysicsBox(24, 24, 855, 98);
+        this.addPhysicsBox(24, 24, 735, 165);
+        this.addPhysicsBox(24, 24, 825, 165);
+        this.addPhysicsBox(24, 24, 780, 250);
+        this.addPhysicsBox(5, 60, 720, 115);
+        this.addPhysicsBox(5, 60, 780, 115);
+        this.addPhysicsBox(5, 60, 840, 115);
+        this.addPhysicsBox(5, 60, 750, 179);
+        this.addPhysicsBox(5, 60, 810, 179);
+        this.addPhysicsBox(70, 5, 780, 210);
+        this.addPhysicsBox(127, 5, 780, 147);
+        
+        this.addCollisionCallBack();
+        this.scheduleUpdate();
+        
         return true;
     }
 });
