@@ -6,7 +6,8 @@ var res = {
     GramdRedBird_png: "res/GramdRedBird.png",
     YellowBird_png: "res/YellowBird.png",
     impulsor_png: "res/Impulsor.png",
-    
+    impulsor1: "res/impulsor1.png",
+    impulsor2: "res/impulsor2.png",
 };
 
 var g_resources = [];

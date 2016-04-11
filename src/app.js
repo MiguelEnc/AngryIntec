@@ -1,12 +1,13 @@
 
 var HelloWorldLayer = cc.Layer.extend({
-    fondo:null,
+    background:null,
     redBird:null,
     blueBird:null,
-    impulsor:null,
+    impulsor1:null,
+    impulsor2:null,
+    yellowBird:null,
     
     ctor:function () {
-        //Este es el proyecto final, aqui tendrán que hacer todo desde cero
         this._super();
         var size = cc.winSize;
 
@@ -14,29 +15,42 @@ var HelloWorldLayer = cc.Layer.extend({
         helloLabel.setPosition(size.width / 2, size.height / 2 + 200);
         this.addChild(helloLabel, 1);
 
-        this.fondo = new cc.Sprite(res.Fondo3_jpg);
-        this.fondo.setPosition(size.width / 2, size.height / 2);
-        this.fondo.setScale(0.45,0.45);
-        this.addChild(this.fondo, 0);
+        this.background = new cc.Sprite(res.Fondo3_jpg);
+        this.background.setPosition(size.width / 2, size.height / 2);
+        this.background.setScale(0.45,0.45);
+        this.addChild(this.background, 0);
         
         this.redBird = new cc.Sprite(res.RedBird_png);
         this.redBird.setPosition(150,105);
         this.redBird.setScale(0.2,0.2);
-        this.addChild(this.redBird, 1);
+        this.addChild(this.redBird, 2);
         
-        this.blueBird = new cc.Sprite(res.BLueBird_png);
-        this.blueBird.setPosition(110,105);
-        this.blueBird.setScale(0.2,0.2);
-        this.addChild(this.blueBird, 1);
+//        this.blueBird = new cc.Sprite(res.BLueBird_png);
+//        this.blueBird.setPosition(110,105);
+//        this.blueBird.setScale(0.2,0.2);
+//        this.addChild(this.blueBird, 1);
+//        
+//        this.yellowBird = new cc.Sprite(res.YellowBird_png);
+//        this.yellowBird.setPosition(70,105);
+//        this.yellowBird.setScale(0.2,0.2);
+//        this.addChild(this.yellowBird, 1);
         
-        this.impulsor = new cc.Sprite(res.impulsor_png);
-        this.impulsor.setPosition(210,135);
-        this.impulsor.setScale(0.5,0.5);
-        this.addChild(this.impulsor,1);
+        this.impulsor1 = new cc.Sprite(res.impulsor2);
+        this.impulsor1.setPosition(210,135);
+        this.impulsor1.setScale(0.5,0.5);
+        this.addChild(this.impulsor1,1);
         
+        this.impulsor2 = new cc.Sprite(res.impulsor1);
+        this.impulsor2.setPosition(200,155);
+        this.impulsor2.setScale(0.5,0.5);
+        this.addChild(this.impulsor2,2);
+        
+        var action = cc.Spawn.create(cc.RotateBy.create(1.5, 360), cc.JumpTo.create(1.5, cc.p(205, 175), 100, 1));
+        this.redBird.runAction(action);
         return true;
     }
 });
+
 
 var HelloWorldScene = cc.Scene.extend({
     onEnter:function () {
