@@ -8,6 +8,9 @@ var res = {
     impulsor_png: "res/Impulsor.png",
     impulsor1: "res/impulsor1.png",
     impulsor2: "res/impulsor2.png",
+    madera1: "res/wood1.png",
+    madera2: "res/wood2.png",
+    enemigo: "res/YoungPig.png"
 };
 
 var g_resources = [];
