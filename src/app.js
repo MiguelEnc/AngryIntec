@@ -21,6 +21,41 @@ var HelloWorldLayer = cc.Layer.extend({
     enemy2: null,
     enemy3: null,
     
+    //------------------------------------------------------------------
+    //
+    // Audio
+    //
+    //------------------------------------------------------------------
+    playMusic: function () {
+        cc.audioEngine.playMusic(res.themeSong, false);
+    },
+    
+    pauseMusic: function () {
+        cc.audioEngine.pauseMusic();
+    },
+
+    resumeMusic: function () {
+        cc.audioEngine.resumeMusic();
+    },
+    
+    rewindMusic: function () {
+        cc.audioEngine.rewindMusic();
+    },
+    
+    increaseMusicVolume: function () {
+        cc.audioEngine.setMusicVolume(cc.audioEngine.getMusicVolume() + 0.1);
+    },
+
+    decreaseMusicVolume: function () {
+        cc.audioEngine.setMusicVolume(cc.audioEngine.getMusicVolume() - 0.1);
+    },
+    
+    
+    //------------------------------------------------------------------
+    //
+    // Physics
+    //
+    //------------------------------------------------------------------
     initPhysics:function() {
         //initiate space
         this.space = new cp.Space();
@@ -85,14 +120,22 @@ var HelloWorldLayer = cc.Layer.extend({
         this.space.addStaticShape(bottomWall);
     },
     
+    
+    //------------------------------------------------------------------
+    //
+    // Constructor
+    //
+    //------------------------------------------------------------------
     ctor:function () {
         this._super();
         var size = cc.winSize;
         
+        // Setting up game label
         var helloLabel = new cc.LabelTTF("Angry INTEC", "Arial", 38);
         helloLabel.setPosition(size.width / 2, size.height / 2 + 200);
         this.addChild(helloLabel, 1);
 
+        // Setting up game sprites
         this.background = new cc.Sprite(res.Fondo3_jpg);
         this.background.setPosition(size.width / 2, size.height / 2);
         this.background.setScale(0.45,0.45);
@@ -188,14 +231,20 @@ var HelloWorldLayer = cc.Layer.extend({
         this.enemy3.setScale(0.25, 0.25);
         this.addChild(this.enemy3, 2);
         
+        // Setting up bird's load animation
         var action = cc.Spawn.create(cc.RotateBy.create(1.5, 360), cc.JumpTo.create(1.5, cc.p(205, 175), 100, 1));
         this.redBird.runAction(action);
         
+        
+        // Initializing physics objects
         this.initPhysics();
         this.setupDebugNode();
         this.addGround();
 //        this.addPhysicsCircle();
+        
+        // addPhysicsBox parameters:
         // width, height, positionX, positionY
+        //
         this.addPhysicsBox(24, 24, 705, 98);
         this.addPhysicsBox(24, 24, 855, 98);
         this.addPhysicsBox(24, 24, 735, 165);
@@ -211,6 +260,12 @@ var HelloWorldLayer = cc.Layer.extend({
         
         this.addCollisionCallBack();
         this.scheduleUpdate();
+        
+        this.playMusic();
+        this.decreaseMusicVolume();
+//        var snd = new Audio(res.themeSong)
+//        snd.load();
+//        snd.play();
         
         return true;
     }

@@ -10,7 +10,8 @@ var res = {
     impulsor2: "res/impulsor2.png",
     madera1: "res/wood1.png",
     madera2: "res/wood2.png",
-    enemigo: "res/YoungPig.png"
+    enemigo: "res/YoungPig.png",
+    themeSong: "res/ThemeSong.mp3"
 };
 
 var g_resources = [];
