@@ -11,6 +11,7 @@ var res = {
     madera1: "res/wood1.png",
     madera2: "res/wood2.png",
     enemigo: "res/YoungPig.png",
+    soga: "res/soga.png",
     themeSong: "res/ThemeSong.mp3"
 };
 
