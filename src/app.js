@@ -354,6 +354,7 @@ var HelloWorldLayer = cc.Layer.extend({
             }
         });
         cc.eventManager.addListener(touchListener, this.background);
+        this.schedule(this.rewindMusic, 90);
         return true;
     }
 });
