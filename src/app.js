@@ -77,20 +77,6 @@ var HelloWorldLayer = cc.Layer.extend({
     },
 
     addPhysicsCircle: function(sprite) {
-        var width = sprite.getBoundingBox().width;
-        var height = sprite.getBoundingBox().height;
-        var pos = sprite.getPosition()
-        var mass = 1;
-
-        var bodyCircle = this.space.addBody(new cp.Body(mass, cp.momentForCircle(mass,0,width*0.5, pos)));
-        bodyCircle.setPos(pos);
-
-        var shape = this.space.addShape(new cp.CircleShape(bodyCircle, width, cc.p(0, 0)));
-        shape.setFriction(0);
-        shape.setElasticity(1);
-        shape.setCollisionType(0);
-
-        sprite.body = bodyCircle;
 
         return sprite;
     },
@@ -171,18 +157,14 @@ var HelloWorldLayer = cc.Layer.extend({
         helloLabel.setPosition(size.width / 2, size.height / 2 + 200);
         this.addChild(helloLabel, 1);
 
+        this.initPhysics();
+        this._createRedBird();
+
         // Setting up game sprites
         this.background = new cc.Sprite(res.Fondo3_jpg);
         this.background.setPosition(size.width / 2, size.height / 2);
         this.background.setScale(0.45,0.45);
         this.addChild(this.background, 0);
-
-        this.redBirdStartPos = cc.p(205, 175);
-        this.redBird = new cc.PhysicsSprite(res.RedBird_png);
-        this.redBird.body = new cp.Body(1, 1);
-        this.redBird.setPosition(cc.p(150,150));
-        this.redBird.setScale(0.2,0.2);
-        this.addChild(this.redBird, 2);
 
         this.impulsor1 = new cc.Sprite(res.impulsor2);
         this.impulsor1.setPosition(210,135);
@@ -216,11 +198,13 @@ var HelloWorldLayer = cc.Layer.extend({
 
         this.addPhysicsBox(res.madera1, 825, 167, 0.3, 0.3, 2);
 
-        this.addPhysicsBox(res.enemigo, 750, 106, 0.25, 0.25, 2);
+        this.enemy1 = this._createEnemy(cc.p(750, 106));
+        this.enemy2 = this._createEnemy(cc.p(815, 105));
+        this.enemy3 = this._createEnemy(cc.p(780, 175));
 
-        this.addPhysicsBox(res.enemigo, 815, 105, 0.25, 0.25, 2);
-
-        this.addPhysicsBox(res.enemigo, 780, 175, 0.25, 0.25, 2);
+        this.addChild(this.enemy1);
+        this.addChild(this.enemy2);
+        this.addChild(this.enemy3);
 
         // Setting up bird's load animation
         var action = cc.Spawn.create(cc.RotateBy.create(1.5, 360), cc.JumpTo.create(1.5, cc.p(205, 175), 100, 1));
@@ -238,16 +222,6 @@ var HelloWorldLayer = cc.Layer.extend({
             swallowTouches: false,
             onTouchesBegan: function (touch, evt) {
 
-                // var currPoint = touch[0].getLocation();
-                // var vector = cc.pSub(self.redBirdStartPos, currPoint);
-                //
-                //     self.soga = new cc.Sprite(res.soga);
-                //     self.soga.x = currPoint.x;
-                //     self.soga.y = currPoint.y;
-                //     self.soga.scaleX = 1.5;
-                //     self.soga.scaleY = 2;
-                //     self.soga.setAnchorPoint(cc.p(0, 0,5));
-                //     self.soga.zIndex = 1;
             },
             onTouchesMoved: function (touch, evt) {
 
@@ -256,10 +230,6 @@ var HelloWorldLayer = cc.Layer.extend({
                 var radius = cc.pLength(vector);
                 var angle = cc.pToAngle(vector);
 
-                console.log(currPoint);
-                console.log(vector);
-                console.log(radius);
-                console.log(angle);
 
                 angle = angle < 0 ? (Math.PI * 2) + angle : angle;
                 radius = Math.clamp(radius, self.slingRadius.min, self.slingRadius.max);
@@ -272,43 +242,62 @@ var HelloWorldLayer = cc.Layer.extend({
                         cc.p(radius * Math.cos(angle), radius * Math.sin(angle))
                     )
                 );
-
-                var updateRubber = function (rubber, to, lengthAddon, topRubber) {
-                    var from = rubber.getPosition(),
-                    rubberVec = cc.pSub(to, from),
-                    rubberAng = cc.pToAngle(rubberVec),
-                    rubberDeg = Math.degrees(rubberAng),
-                    length = cc.pLength(rubberVec) + (lengthAddon || 8);
-
-                    rubber.setRotation(-rubberDeg);
-                    rubber.setScaleX(-(length / rubber.getContentSize()
-                      .width));
-
-                    if (topRubber) {
-                        rubber.setScaleY(1.1 - ((0.7 / this.slingRadius.max) * length));
-                        this.soga.setRotation(-rubberDeg);
-                        this.soga.setPosition(
-                            cc.pAdd(from, cc.p((length) * Math.cos(rubberAng), (length) * Math.sin(rubberAng)))
-                        );
-                    }
-                }.bind(self);
-
-                var rubberToPos = self.redBird.getPosition();
-                // updateRubber(self.impulsor1, rubberToPos, 13, true);
-                // updateRubber(self.impulsor2, rubberToPos, 0);
-                // self.impulsor1.setScaleY(self.impulsor2.getScaleY());
             },
             onTouchesEnded: function (touches, event) {
                 var bird = self.addPhysicsCircle(self.redBird);
                 var r = cp.v.sub(self.redBirdStartPos, bird.getPosition());
                 var j = cp.v.mult(r, cp.v.len(r)/5);
-                // bird.body.setMass(5);
+                self.space.addBody(bird.body);
                 bird.body.applyImpulse(j, cp.v(0,0));
             }
         });
         cc.eventManager.addListener(touchListener, this.background);
         this.schedule(this.rewindMusic, 90);
         return true;
+    },
+    _createRedBird: function () {
+        this.redBirdStartPos = cc.p(205, 175);
+        this.redBird = new cc.PhysicsSprite(res.RedBird_png);
+
+        var width = this.redBird.width*.1;
+        var height = this.redBird.height*.1;
+        var pos = cc.p(150,150);
+        var mass = 1.5;
+
+        var bodyCircle = new cp.Body(mass,
+                         cp.momentForCircle(mass,0,height*0.2*width*0.2, pos));
+        bodyCircle.setPos(pos);
+        var shape = this.space.addShape(new cp.CircleShape(bodyCircle, width, cc.p(0, 0)));
+        shape.setFriction(1);
+        shape.setElasticity(1);
+        shape.setCollisionType(0);
+
+        this.redBird.body = bodyCircle;
+        this.redBird.setPosition(cc.p(150,150));
+        this.redBird.setScale(0.2,0.2);
+        this.addChild(this.redBird, 2);
+    },
+    _createEnemy: function (p) {
+        var enemy = new cc.PhysicsSprite(res.enemigo);
+
+        var width = enemy.width*.1;
+        var height = enemy.height*.1;
+        var mass = 1.5;
+
+        var bodyCircle = this.space.addBody(new cp.Body(mass,
+                         cp.momentForCircle(mass,0,height*0.2*width*0.2, p)));
+        bodyCircle.setPos(p);
+
+        enemy.body = bodyCircle;
+
+        var shape = this.space.addShape(new cp.CircleShape(bodyCircle, width, cc.p(0, 0)));
+        shape.setFriction(1);
+        shape.setElasticity(1);
+        shape.setCollisionType(0);
+
+        enemy.setPosition(p);
+        enemy.setScale(0.25, 0.25);
+        return enemy;
     }
 });
 
