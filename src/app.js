@@ -102,7 +102,6 @@ var HelloWorldLayer = cc.Layer.extend({
 
     addCollisionCallBack:function(){
         this.space.addCollisionHandler(0, 1, function(){
-            cc.log('Box and Circle colliding !');
             return true;
         }, null, null, null);
     },
@@ -118,7 +117,6 @@ var HelloWorldLayer = cc.Layer.extend({
         this.space.addStaticShape(bottomWall);
     },
 
-
     //------------------------------------------------------------------
     //
     // Constructor
@@ -127,10 +125,23 @@ var HelloWorldLayer = cc.Layer.extend({
     ctor:function () {
         this._super();
         var size = cc.winSize;
+        
+        this.playMusic();
+        
+        // Refresh button
+        var refreshMenu = new cc.Sprite(res.menu_refresh);
+        refreshMenu.setPosition(50, size.height - 50);
+        refreshMenu.setScale(1,1);
+        this.addChild(refreshMenu, 2);
 
-        // Setting up game label
+        // Refresh label
+        var refreshLabel = new cc.LabelTTF("Press SPACE to restart", "Arial", 18);
+        refreshLabel.setPosition(180, size.height - 50);
+        this.addChild(refreshLabel, 1);
+
+        // Game label
         var helloLabel = new cc.LabelTTF("Angry INTEC", "Arial", 38);
-        helloLabel.setPosition(size.width / 2, size.height / 2 + 200);
+        helloLabel.setPosition(size.width / 2, size.height - 50);
         this.addChild(helloLabel, 1);
 
         this.initPhysics();
@@ -257,9 +268,6 @@ var HelloWorldLayer = cc.Layer.extend({
         this.addCollisionCallBack();
         this.scheduleUpdate();
 
-        this.playMusic();
-        this.decreaseMusicVolume();
-
         var self = this;
         var touchListener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ALL_AT_ONCE,
@@ -330,8 +338,29 @@ var HelloWorldLayer = cc.Layer.extend({
                 bird.body.applyImpulse(j, cp.v(0,0));
             }
         });
+        
+        // Adding touchListener to background
         cc.eventManager.addListener(touchListener, this.background);
-        this.schedule(this.rewindMusic, 90);
+        
+        // Key listener
+        cc.eventManager.addListener({
+            event: cc.EventListener.KEYBOARD,
+            onKeyPressed: function(keyCode, event){
+                
+                var juego = event.getCurrentTarget();
+                
+                if(keyCode === 32 ){   //SPACE pressed
+                    console.log("SPACE");
+                    juego.ctor();
+                    juego.playMusic();
+                }
+                
+            }
+        }, this);
+        
+        // Schedule function to rewind music
+        //this.schedule(this.rewindMusic, 90);
+        
         return true;
     },
     _createRedBird: function () {

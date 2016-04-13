@@ -12,7 +12,8 @@ var res = {
     madera2: "res/wood2.png",
     enemigo: "res/YoungPig.png",
     soga: "res/soga.png",
-    themeSong: "res/ThemeSong.mp3"
+    themeSong: "res/ThemeSong.mp3",
+    menu_refresh: "res/menu_refresh.png"
 };
 
 var g_resources = [];
