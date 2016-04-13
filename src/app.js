@@ -95,18 +95,51 @@ var HelloWorldLayer = cc.Layer.extend({
         return sprite;
     },
 
-    addPhysicsBox: function(width, height, posX, posY) {
-        var mass=1;
+//    addPhysicsBox: function(width, height, posX, posY) {
+//        var mass=1;
+//
+//        this.phBodyBox = this.space.addBody(new cp.Body(mass, cp.momentForBox(mass, width, height)));
+//        this.phBodyBox.setPos(cc.p(posX, posY));
+//
+//        var phShape = this.space.addShape(new cp.BoxShape(this.phBodyBox, width, height));
+//        phShape.setFriction(2);
+//        phShape.setElasticity(0);
+//        phShape.setCollisionType(1);
+//
+//        return phShape;
+//    },
+    
+    addPhysicsBox: function(filename, X, Y, scaleX, scaleY, Z, rotation) {
+        //#1
+        var box = cc.Sprite.create(filename);
+        var mass = 1;
 
-        this.phBodyBox = this.space.addBody(new cp.Body(mass, cp.momentForBox(mass, width, height)));
-        this.phBodyBox.setPos(cc.p(posX, posY));
+        //#2
+        var phNode = cc.PhysicsSprite.create(filename),
+            phBody = null,
+            phShape = null;
+        
+        this.addChild(phNode, Z);
+        
+        var nodeSize = box.getContentSize();
+        
+        nodeSize.width *= scaleX;
+        nodeSize.height *= scaleY;
 
-        var phShape = this.space.addShape(new cp.BoxShape(this.phBodyBox, width, height));
-        phShape.setFriction(2);
-        phShape.setElasticity(0);
-        phShape.setCollisionType(1);
+        //#3
+        var myBody = new cp.Body(mass, cp.momentForBox(mass, nodeSize.width, nodeSize.height));
+        phNode.setBody(myBody   );
+        if(!!rotation)
+            phNode.setRotation(rotation);
+        phNode.setScale(scaleX, scaleY);
+        phBody = this.space.addBody(myBody);
+        phBody.setPos(cc.p(X, Y));
 
-        return phShape;
+        //#4
+        var shape = new cp.BoxShape(myBody, nodeSize.width, nodeSize.height);
+        shape = this.space.addShape(shape);
+        shape.setFriction(0.5);
+        shape.setElasticity(0.5);
     },
 
     setupDebugNode : function(){
@@ -141,6 +174,11 @@ var HelloWorldLayer = cc.Layer.extend({
     ctor:function () {
         this._super();
         var size = cc.winSize;
+        
+        // Initializing physics objects
+        this.initPhysics();
+        this.setupDebugNode();
+        this.addGround();
 
         // Setting up game label
         var helloLabel = new cc.LabelTTF("Angry INTEC", "Arial", 38);
@@ -163,7 +201,6 @@ var HelloWorldLayer = cc.Layer.extend({
         this.impulsor1 = new cc.Sprite(res.impulsor2);
         this.impulsor1.setPosition(210,135);
         this.impulsor1.setScale(0.5,0.5);
-
         this.addChild(this.impulsor1,1);
 
         this.impulsor2 = new cc.Sprite(res.impulsor1);
@@ -175,103 +212,94 @@ var HelloWorldLayer = cc.Layer.extend({
 //        this.wood1.setPosition(705,100);
 //        this.wood1.setScale(0.3, 0.3);
 //        this.addChild(this.wood1, 2);
+        this.addPhysicsBox(res.madera1, 705, 100, 0.3, 0.3, 2);
 
 //        this.wood2 = new cc.Sprite(res.madera2);
 //        this.wood2.setPosition(720,118);
 //        this.wood2.setScale(0.3, 0.4);
 //        this.wood2.setRotation(90);
 //        this.addChild(this.wood2, 2);
+        this.addPhysicsBox(res.madera2, 720, 118, 0.3, 0.4, 2, 90);
 
 //        this.wood3 = new cc.Sprite(res.madera2);
 //        this.wood3.setPosition(780,118);
 //        this.wood3.setScale(0.3, 0.4);
 //        this.wood3.setRotation(90);
 //        this.addChild(this.wood3, 2);
+        this.addPhysicsBox(res.madera2, 780, 118, 0.3, 0.4, 2, 90);
 
 //        this.wood4 = new cc.Sprite(res.madera2);
 //        this.wood4.setPosition(840,118);
 //        this.wood4.setScale(0.3, 0.4);
 //        this.wood4.setRotation(90);
 //        this.addChild(this.wood4, 2);
+        this.addPhysicsBox(res.madera2, 840, 118, 0.3, 0.4, 2, 90);
 
 //        this.wood5 = new cc.Sprite(res.madera1);
 //        this.wood5.setPosition(856,100);
 //        this.wood5.setScale(0.3, 0.3);
 //        this.addChild(this.wood5, 2);
+        this.addPhysicsBox(res.madera1, 856, 100, 0.3, 0.3, 2);
 
 //        this.wood6 = new cc.Sprite(res.madera2);
 //        this.wood6.setPosition(780,152);
 //        this.wood6.setScale(0.65, 0.4);
 //        this.addChild(this.wood6, 2);
+        this.addPhysicsBox(res.madera2, 780, 152, 0.65, 0.4, 2);
 
 //        this.wood7 = new cc.Sprite(res.madera2);
 //        this.wood7.setPosition(750,185);
 //        this.wood7.setScale(0.3, 0.4);
 //        this.wood7.setRotation(90);
 //        this.addChild(this.wood7, 2);
+        this.addPhysicsBox(res.madera2, 750, 185, 0.3, 0.4, 2, 90);
 
 //        this.wood8 = new cc.Sprite(res.madera2);
 //        this.wood8.setPosition(810,185);
 //        this.wood8.setScale(0.3, 0.4);
 //        this.wood8.setRotation(90);
 //        this.addChild(this.wood8, 2);
+        this.addPhysicsBox(res.madera2, 810, 185, 0.3, 0.4, 2, 90);
 
 //        this.wood9 = new cc.Sprite(res.madera2);
 //        this.wood9.setPosition(780,220);
 //        this.wood9.setScale(0.35, 0.4);
 //        this.addChild(this.wood9, 2);
+        this.addPhysicsBox(res.madera2, 780, 220, 0.35, 0.4, 2);
 
 //        this.wood10 = new cc.Sprite(res.madera1);
 //        this.wood10.setPosition(735,167);
 //        this.wood10.setScale(0.3, 0.3);
 //        this.addChild(this.wood10, 2);
+        this.addPhysicsBox(res.madera2, 735, 167, 0.3, 0.3, 2);
 
 //        this.wood11 = new cc.Sprite(res.madera1);
 //        this.wood11.setPosition(825,167);
 //        this.wood11.setScale(0.3, 0.3);
 //        this.addChild(this.wood11, 2);
+        this.addPhysicsBox(res.madera1, 825, 167, 0.3, 0.3, 2);
 
-        this.enemy1 = new cc.Sprite(res.enemigo);
-        this.enemy1.setPosition(750, 106);
-        this.enemy1.setScale(0.25, 0.25);
-        this.addChild(this.enemy1, 2);
+//        this.enemy1 = new cc.Sprite(res.enemigo);
+//        this.enemy1.setPosition(750, 106);
+//        this.enemy1.setScale(0.25, 0.25);
+//        this.addChild(this.enemy1, 2);
+        this.addPhysicsBox(res.enemigo, 750, 106, 0.25, 0.25, 2);
 
-        this.enemy2 = new cc.Sprite(res.enemigo);
-        this.enemy2.setPosition(815, 105);
-        this.enemy2.setScale(0.25, 0.25);
-        this.addChild(this.enemy2, 2);
+//        this.enemy2 = new cc.Sprite(res.enemigo);
+//        this.enemy2.setPosition(815, 105);
+//        this.enemy2.setScale(0.25, 0.25);
+//        this.addChild(this.enemy2, 2);
+        this.addPhysicsBox(res.enemigo, 815, 105, 0.25, 0.25, 2);
 
-        this.enemy3 = new cc.Sprite(res.enemigo);
-        this.enemy3.setPosition(780, 175);
-        this.enemy3.setScale(0.25, 0.25);
-        this.addChild(this.enemy3, 2);
+//        this.enemy3 = new cc.Sprite(res.enemigo);
+//        this.enemy3.setPosition(780, 175);
+//        this.enemy3.setScale(0.25, 0.25);
+//        this.addChild(this.enemy3, 2);
+        this.addPhysicsBox(res.enemigo, 780, 175, 0.25, 0.25, 2);
 
         // Setting up bird's load animation
         var action = cc.Spawn.create(cc.RotateBy.create(1.5, 360), cc.JumpTo.create(1.5, cc.p(205, 175), 100, 1));
         this.redBird.runAction(action);
-
-
-        // Initializing physics objects
-        this.initPhysics();
-        this.setupDebugNode();
-        this.addGround();
-    //    this.addPhysicsCircle();
-
-        // addPhysicsBox parameters:
-        // width, height, positionX, positionY
-        //
-        this.addPhysicsBox(24, 24, 705, 98);
-        this.addPhysicsBox(24, 24, 855, 98);
-        this.addPhysicsBox(24, 24, 735, 165);
-        this.addPhysicsBox(24, 24, 825, 165);
-        this.addPhysicsBox(24, 24, 780, 250);
-        this.addPhysicsBox(5, 60, 720, 115);
-        this.addPhysicsBox(5, 60, 780, 115);
-        this.addPhysicsBox(5, 60, 840, 115);
-        this.addPhysicsBox(5, 60, 750, 179);
-        this.addPhysicsBox(5, 60, 810, 179);
-        this.addPhysicsBox(70, 5, 780, 210);
-        this.addPhysicsBox(127, 5, 780, 147);
 
         this.addCollisionCallBack();
         this.scheduleUpdate();
