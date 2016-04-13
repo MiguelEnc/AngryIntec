@@ -157,7 +157,6 @@ var HelloWorldLayer = cc.Layer.extend({
         helloLabel.setPosition(size.width / 2, size.height / 2 + 200);
         this.addChild(helloLabel, 1);
 
-        this.initPhysics();
         this._createRedBird();
 
         // Setting up game sprites
@@ -246,7 +245,7 @@ var HelloWorldLayer = cc.Layer.extend({
             onTouchesEnded: function (touches, event) {
                 var bird = self.addPhysicsCircle(self.redBird);
                 var r = cp.v.sub(self.redBirdStartPos, bird.getPosition());
-                var j = cp.v.mult(r, cp.v.len(r)/5);
+                var j = cp.v.mult(r, cp.v.len(r)/2);
                 self.space.addBody(bird.body);
                 bird.body.applyImpulse(j, cp.v(0,0));
             }
@@ -262,7 +261,7 @@ var HelloWorldLayer = cc.Layer.extend({
         var width = this.redBird.width*.1;
         var height = this.redBird.height*.1;
         var pos = cc.p(150,150);
-        var mass = 1.5;
+        var mass = 3;
 
         var bodyCircle = new cp.Body(mass,
                          cp.momentForCircle(mass,0,height*0.2*width*0.2, pos));
