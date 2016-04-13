@@ -1,6 +1,6 @@
 Math.clamp=function(a,b,c){
-    a = Math.min(a,b);
-    a = Math.max(a,c);
+    a = Math.min(a,c);
+    a = Math.max(a,b);
     return a;
 };
 Math.radians = function(degrees) {
@@ -12,28 +12,8 @@ Math.degrees = function(radians) {
 };
 
 var HelloWorldLayer = cc.Layer.extend({
-    background:null,
-    redBird:null,
-    blueBird:null,
-    impulsor1:null,
-    impulsor2:null,
-    yellowBird:null,
-    wood1:null,
-    wood2:null,
-    wood3:null,
-    wood4:null,
-    wood5:null,
-    wood6:null,
-    wood7:null,
-    wood8:null,
-    wood9:null,
-    wood10:null,
-    wood11:null,
-    enemy1: null,
-    enemy2: null,
-    enemy3: null,
     slingRadius: {
-        min: 20,
+        min: 0,
         max: 80
     },
     slingAngle: {
@@ -89,18 +69,30 @@ var HelloWorldLayer = cc.Layer.extend({
 
     update:function (dt) {
         this.space.step(dt);
+        // this.space.eachShape(function(shape){
+        //     var pos = shape.body.p;
+        //     shape.sprite && shape.sprite.setPosition(pos.x, pos.y);
+        //     //no need to set rotation for this case, for all sprites are round
+        // });
     },
 
-    addPhysicsCircle: function(width, height) {
+    addPhysicsCircle: function(sprite) {
+        var width = sprite.getBoundingBox().width;
+        var height = sprite.getBoundingBox().height;
+        var pos = sprite.getPosition()
         var mass = 1;
 
-        this.phBodyCircle = this.space.addBody(new cp.Body(mass, cp.momentForCircle(mass,0,width*0.5,cc.p(0,0))));
-        this.phBodyCircle.setPos(cc.p(cc.winSize.width * 0.5, cc.winSize.height * 0.3));
+        var bodyCircle = this.space.addBody(new cp.Body(mass, cp.momentForCircle(mass,0,width*0.5, pos)));
+        bodyCircle.setPos(pos);
 
-        var phShape = this.space.addShape(new cp.CircleShape(this.phBodyCircle, width, cc.p(0, 0)));
-        phShape.setFriction(0);
-        phShape.setElasticity(1);
-        phShape.setCollisionType(0);
+        var shape = this.space.addShape(new cp.CircleShape(bodyCircle, width, cc.p(0, 0)));
+        shape.setFriction(0);
+        shape.setElasticity(1);
+        shape.setCollisionType(0);
+
+        sprite.body = bodyCircle;
+
+        return sprite;
     },
 
     addPhysicsBox: function(width, height, posX, posY) {
@@ -161,9 +153,10 @@ var HelloWorldLayer = cc.Layer.extend({
         this.background.setScale(0.45,0.45);
         this.addChild(this.background, 0);
 
-        this.redBirdStartPos = cc.p(150, 150);
-        this.redBird = new cc.Sprite(res.RedBird_png);
-        this.redBird.setPosition(this.redBirdStartPos);
+        this.redBirdStartPos = cc.p(205, 175);
+        this.redBird = new cc.PhysicsSprite(res.RedBird_png);
+        this.redBird.body = new cp.Body(1, 1);
+        this.redBird.setPosition(cc.p(150,150));
         this.redBird.setScale(0.2,0.2);
         this.addChild(this.redBird, 2);
 
@@ -262,23 +255,23 @@ var HelloWorldLayer = cc.Layer.extend({
         this.initPhysics();
         this.setupDebugNode();
         this.addGround();
-//        this.addPhysicsCircle();
+    //    this.addPhysicsCircle();
 
         // addPhysicsBox parameters:
         // width, height, positionX, positionY
         //
-        // this.addPhysicsBox(24, 24, 705, 98);
-        // this.addPhysicsBox(24, 24, 855, 98);
-        // this.addPhysicsBox(24, 24, 735, 165);
-        // this.addPhysicsBox(24, 24, 825, 165);
-        // this.addPhysicsBox(24, 24, 780, 250);
-        // this.addPhysicsBox(5, 60, 720, 115);
-        // this.addPhysicsBox(5, 60, 780, 115);
-        // this.addPhysicsBox(5, 60, 840, 115);
-        // this.addPhysicsBox(5, 60, 750, 179);
-        // this.addPhysicsBox(5, 60, 810, 179);
-        // this.addPhysicsBox(70, 5, 780, 210);
-        // this.addPhysicsBox(127, 5, 780, 147);
+        this.addPhysicsBox(24, 24, 705, 98);
+        this.addPhysicsBox(24, 24, 855, 98);
+        this.addPhysicsBox(24, 24, 735, 165);
+        this.addPhysicsBox(24, 24, 825, 165);
+        this.addPhysicsBox(24, 24, 780, 250);
+        this.addPhysicsBox(5, 60, 720, 115);
+        this.addPhysicsBox(5, 60, 780, 115);
+        this.addPhysicsBox(5, 60, 840, 115);
+        this.addPhysicsBox(5, 60, 750, 179);
+        this.addPhysicsBox(5, 60, 810, 179);
+        this.addPhysicsBox(70, 5, 780, 210);
+        this.addPhysicsBox(127, 5, 780, 147);
 
         this.addCollisionCallBack();
         this.scheduleUpdate();
@@ -292,16 +285,16 @@ var HelloWorldLayer = cc.Layer.extend({
             swallowTouches: false,
             onTouchesBegan: function (touch, evt) {
 
-                var currPoint = touch[0].getLocation();
-                var vector = cc.pSub(self.redBirdStartPos, currPoint);
-
-                    self.soga = new cc.Sprite(res.soga);
-                    self.soga.x = currPoint.x;
-                    self.soga.y = currPoint.y;
-                    self.soga.scaleX = 1.5;
-                    self.soga.scaleY = 2;
-                    self.soga.setAnchorPoint(cc.p(0, 0,5));
-                    self.soga.zIndex = 1;
+                // var currPoint = touch[0].getLocation();
+                // var vector = cc.pSub(self.redBirdStartPos, currPoint);
+                //
+                //     self.soga = new cc.Sprite(res.soga);
+                //     self.soga.x = currPoint.x;
+                //     self.soga.y = currPoint.y;
+                //     self.soga.scaleX = 1.5;
+                //     self.soga.scaleY = 2;
+                //     self.soga.setAnchorPoint(cc.p(0, 0,5));
+                //     self.soga.zIndex = 1;
             },
             onTouchesMoved: function (touch, evt) {
 
@@ -310,16 +303,21 @@ var HelloWorldLayer = cc.Layer.extend({
                 var radius = cc.pLength(vector);
                 var angle = cc.pToAngle(vector);
 
+                console.log(currPoint);
+                console.log(vector);
+                console.log(radius);
+                console.log(angle);
+
                 angle = angle < 0 ? (Math.PI * 2) + angle : angle;
-                console.log(radius);
                 radius = Math.clamp(radius, self.slingRadius.min, self.slingRadius.max);
-                console.log(radius);
                 if (angle <= self.slingAngle.max && angle >= self.slingAngle.min) {
                     radius = self.slingRadius.min;
                 }
 
                 self.redBird.setPosition(
-                    cc.pAdd(self.redBirdStartPos, cc.p(radius * Math.cos(angle), radius * Math.sin(angle)))
+                    cc.pAdd(self.redBirdStartPos,
+                        cc.p(radius * Math.cos(angle), radius * Math.sin(angle))
+                    )
                 );
 
                 var updateRubber = function (rubber, to, lengthAddon, topRubber) {
@@ -346,6 +344,13 @@ var HelloWorldLayer = cc.Layer.extend({
                 // updateRubber(self.impulsor1, rubberToPos, 13, true);
                 // updateRubber(self.impulsor2, rubberToPos, 0);
                 // self.impulsor1.setScaleY(self.impulsor2.getScaleY());
+            },
+            onTouchesEnded: function (touches, event) {
+                var bird = self.addPhysicsCircle(self.redBird);
+                var r = cp.v.sub(self.redBirdStartPos, bird.getPosition());
+                var j = cp.v.mult(r, cp.v.len(r)/5);
+                // bird.body.setMass(5);
+                bird.body.applyImpulse(j, cp.v(0,0));
             }
         });
         cc.eventManager.addListener(touchListener, this.background);
